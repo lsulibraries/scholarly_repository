@@ -1,0 +1,41 @@
+<?php
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function scholarly_repository_help($route_name, RouteMatchInterface $route_match)
+{
+    switch ($route_name) {
+        case 'help.page.scholarly_repository':
+            return t('
+                <h2>LSU Scholarly Repository integration for Drupal.</h2>
+                <h3>Instructions</h3>
+                <p>Unpack in the <em>modules</em> folder (currently in the root of your Drupal installation) and enable in <strong>/admin/modules</strong>.</p>
+                <h3>Attention</h3>
+                <p>Most bugs have been ironed out, holes covered, features added. But this module is a work in progress. Please report bugs and suggestions, ok?</p>
+            ');
+    }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function scholarly_repository_theme($existing, $type, $theme, $path)
+{
+    return [
+        'publication' => [
+            'variables' => [],
+        ],
+    ];
+}
+
+function scholarly_repository_theme_suggestions_publication(array $variables)
+{
+    $view = $variables['view'];
+    $suggestions = [];
+    $suggestions[] = 'publication__view__' . $view->id();
+    $suggestions[] = 'publication__view__' . $view->id() . '__' . $view->current_display;
+    return $suggestions;
+}
