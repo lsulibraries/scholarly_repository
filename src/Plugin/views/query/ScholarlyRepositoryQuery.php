@@ -88,7 +88,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
             $plugin_id,
             $plugin_definition,
             $container->get('http_client'),
-            $container->get('logger.channel.libguides')
+            $container->get('logger.channel.scholarly_repository')
         );
     }
 

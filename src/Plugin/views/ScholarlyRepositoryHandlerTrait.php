@@ -10,7 +10,7 @@ trait ScholarlyRepositoryHandlerTrait
     /**
      * Retrieves the query plugin.
      *
-     * @return \Drupal\libguides\Plugin\views\query\ScholarlyRepositoryQuery|null
+     * @return \Drupal\scholarly_repository\Plugin\views\query\ScholarlyRepositoryQuery|null
      *   The query plugin, or NULL if there is no query or it is not ScholarlyRepositoryQuery
      *   query.
      */
