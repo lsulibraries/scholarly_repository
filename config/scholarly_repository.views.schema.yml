@@ -1,0 +1,3 @@
+views.filter.scholarly_repository_context:
+  type: views.filter.in_operator
+  label: "Scholarly Repository Context"
