@@ -48,6 +48,13 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
     public $search_terms;
 
     /**
+     * Search operator
+     * 
+     * @var string|null
+     */
+    public $search_match;
+
+    /**
      * Sort by
      * 
      * @var string|null
@@ -95,7 +102,9 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 'query' => [
                     '_api_proxy_uri' => '/do/search' .
                         '?q=' . $this->search_terms .
-                        "&start=" . 0 // @TODO Modify items per page. Seems to be fixed to 25
+                        "&context=" . 1 .
+                        "&start=" . 0 . // @TODO Modify items per page. Seems to be fixed to 25
+                        "&sort=" . $this->sort_by
                 ],
                 'absolute' => TRUE,
             ])->toString(TRUE)->getGeneratedUrl();
@@ -106,13 +115,11 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
             );
 
             $data = json_decode($response->getBody()->getContents(), TRUE);
-            $view->pager->total_items = count($data);
+            $this->logger->log('debug', $data);
 
             $offset = $view->getOffset();
             $items_per_page = $view->getItemsPerPage();
             $currentPage = $view->getCurrentPage();
-
-            $data = array_slice($data, $offset + ($currentPage * $items_per_page), $items_per_page);
 
             $index = 0;
             foreach ($data as $publication) {
