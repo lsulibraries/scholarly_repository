@@ -105,34 +105,43 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
      */
     public function execute(ViewExecutable $view)
     {
+        // Pager config
+        $offset = $view->getOffset();
+        $items_per_page = $view->getItemsPerPage();
+        $current_page = $view->getCurrentPage();
+
+        $chunk_size = 25;
+        $start = $offset + ($items_per_page * $current_page);
+
         try {
-            $url = Url::fromUri('internal:/api-proxy/scholarly_repository_api_proxy', [
-                'query' => [
-                    '_api_proxy_uri' => '/do/search/results/json' .
-                        // '?q=' . $this->search_terms .
-                        '?q=' . 'test' .
-                        "&context=" . 1 .
-                        "&start=" . 0 . // @TODO Modify items per page. Seems to be fixed to 25
-                        "&sort=" . $this->sort_by
-                ],
-                'absolute' => TRUE,
-            ])->toString(TRUE)->getGeneratedUrl();
+            $data = [];
 
-            $this->logger->log('debug', $url);
+            for ($i = 0; count($data) < $items_per_page; $i++) {
+                $url = Url::fromUri('internal:/api-proxy/scholarly_repository_api_proxy', [
+                    'query' => [
+                        '_api_proxy_uri' => '/do/search/results/json' .
+                            '?q=' . ($this->search_terms ?: "LSU") .
+                            "&context=" . 1 .
+                            "&start=" . $start + ($i * $chunk_size) .
+                            "&sort=" . $this->sort_by
+                    ],
+                    'absolute' => TRUE,
+                ])->toString(TRUE)->getGeneratedUrl();
 
-            $response = $this->client->request(
-                'GET',
-                $url,
-            );
+                $this->logger->debug($url);
 
-            $json = json_decode($response->getBody()->getContents(), TRUE);
-            $data = $json['docs'];
+                $response = $this->client->request(
+                    'GET',
+                    $url,
+                );
 
-            dpm($view);
+                $json = json_decode($response->getBody()->getContents(), TRUE);
+                $view->pager->total_items = $json['num_found'];
 
-            $offset = $view->getOffset();
-            $items_per_page = $view->getItemsPerPage();
-            $currentPage = $view->getCurrentPage();
+                $data = array_merge($data, $json['docs']);
+            }
+
+            $data = array_slice($data, 0, $items_per_page);
 
             $index = 0;
             foreach ($data as $publication) {
@@ -156,9 +165,9 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 $view->result[] = new ResultRow($row);
             }
 
-            // $view->pager->updatePageInfo();
-            // $view->pager->postExecute($view->result);
-            $view->total_rows = $json['num_found'];
+            $view->pager->updatePageInfo();
+            $view->pager->postExecute($view->result);
+            $view->total_rows = $view->pager->getTotalItems();
         } catch (\Throwable $th) {
             $this->error($th->getMessage());
         }
