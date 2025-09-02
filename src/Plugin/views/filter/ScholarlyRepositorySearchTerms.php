@@ -97,6 +97,8 @@ class ScholarlyRepositorySearchTerms extends FilterPluginBase
     {
         $query = $this->getQuery();
 
+        if (!$this->value) return;
+
         // Pass any data you need to your query plugin.
         $query->search_terms = reset($this->value);
         $query->search_match = $this->operator;

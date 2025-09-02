@@ -2,49 +2,72 @@
 
 namespace Drupal\scholarly_repository\Plugin\views\filter;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\scholarly_repository\Plugin\views\ScholarlyRepositoryHandlerTrait;
-use Drupal\views\Plugin\views\filter\InOperator;
+use Drupal\views\Plugin\views\filter\Equality;
 
 /**
  * Filter by publication context.
  * 
  * @ViewsFilter("scholarly_repository_context")
  */
-class ScholarlyRepositoryContext extends InOperator
+class ScholarlyRepositoryContext extends Equality
 {
 
     use ScholarlyRepositoryHandlerTrait;
 
-    protected $valueFormType = 'radios';
-
     /**
-     * {@inheritdoc}
+     * Provide a simple textfield for equality.
      */
-    public function getValueOptions()
+    protected function valueForm(&$form, FormStateInterface $form_state)
     {
-        $this->valueOptions = [
-            $this->t('LSU Scholarly Repository'),
-            $this->t('All Repositories'),
-        ];
+        parent::valueForm($form, $form_state);
 
-        return $this->valueOptions;
+        $form['value'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Value'),
+            '#default_value' => $this->value,
+            '#options' => [
+                '1' => $this->t('All Repositories'),
+                '8403704' => $this->t('LSU Scholarly Repository'),
+            ],
+        ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function operators()
+    public function defineOptions()
     {
-        $operators = [
-            'in' => [
-                'title' => $this->t('Is one of'),
-                'short' => $this->t('in'),
-                'short_single' => $this->t('='),
-                'method' => 'opSimple',
-                'values' => 1,
-            ],
+        $options = parent::defineOptions();
+
+        $options['value'] = ['default' => '1'];
+
+        return $options;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function operatorOptions()
+    {
+        return [
+            '=' => $this->t('Is equal to'),
         ];
-        return $operators;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function adminSummary()
+    {
+        switch ($this->value) {
+            case '1':
+                return $this->operator . ' ' . 'All Repositories ';
+
+            default:
+                return $this->operator . ' ' . 'LSU Scholarly Repository';
+        }
     }
 
     /**
@@ -53,7 +76,6 @@ class ScholarlyRepositoryContext extends InOperator
     public function query()
     {
         $query = $this->getQuery();
-        if (isset($this->value['all'])) unset($this->value['all']);
-        $query->status = implode(',', $this->value);
+        $query->context =  $this->value;
     }
 }

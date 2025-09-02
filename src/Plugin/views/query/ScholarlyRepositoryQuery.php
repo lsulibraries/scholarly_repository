@@ -66,7 +66,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
      * 
      * @var string|null
      */
-    public $status;
+    public $context;
 
     /**
      * {@inheritdoc}

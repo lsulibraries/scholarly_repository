@@ -17,11 +17,20 @@ function scholarly_repository_views_data()
 
     // Filters
     $data['scholarly_repository_publications']['scholarly_repository_search'] = [
-        'group' => t('Search'),
+        'group' => t('Filter'),
         'title' => t('Scholarly Repository Search'),
         'help' => t('Filter by searching publication full-text.'),
         'filter' => [
             'id' => 'scholarly_repository_search_terms',
+        ],
+    ];
+
+    $data['scholarly_repository_publications']['scholarly_repository_context'] = [
+        'group' => t('Filter'),
+        'title' => t('Scholarly Repository Context'),
+        'help' => t('Filter by repository.'),
+        'filter' => [
+            'id' => 'scholarly_repository_context',
         ],
     ];
 
