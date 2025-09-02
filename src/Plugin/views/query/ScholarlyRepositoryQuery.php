@@ -95,13 +95,22 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
     /**
      * {@inheritdoc}
      */
+    public function build(ViewExecutable $view)
+    {
+        $view->initPager();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function execute(ViewExecutable $view)
     {
         try {
             $url = Url::fromUri('internal:/api-proxy/scholarly_repository_api_proxy', [
                 'query' => [
-                    '_api_proxy_uri' => '/do/search' .
-                        '?q=' . $this->search_terms .
+                    '_api_proxy_uri' => '/do/search/results/json' .
+                        // '?q=' . $this->search_terms .
+                        '?q=' . 'test' .
                         "&context=" . 1 .
                         "&start=" . 0 . // @TODO Modify items per page. Seems to be fixed to 25
                         "&sort=" . $this->sort_by
@@ -109,13 +118,17 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 'absolute' => TRUE,
             ])->toString(TRUE)->getGeneratedUrl();
 
+            $this->logger->log('debug', $url);
+
             $response = $this->client->request(
                 'GET',
                 $url,
             );
 
-            $data = json_decode($response->getBody()->getContents(), TRUE);
-            $this->logger->log('debug', $data);
+            $json = json_decode($response->getBody()->getContents(), TRUE);
+            $data = $json['docs'];
+
+            dpm($view);
 
             $offset = $view->getOffset();
             $items_per_page = $view->getItemsPerPage();
@@ -123,8 +136,18 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
 
             $index = 0;
             foreach ($data as $publication) {
-                $row['id'] = $publication['id'];
+                $row['id'] = $publication['context_key'];
                 $row['title'] = $publication['title'];
+                $row['institution_title'] = $publication['institution_title'];
+                $row['publication_title'] = $publication['publication_title'];
+                $row['author'] = isset($publication['author']) ? implode(",", $publication['author']) : "";
+                $row['author_display'] = isset($publication['author_display']) ? implode(",", $publication['author_display']) : "";
+                $row['document_type'] = isset($publication['document_type']) ? implode(",", $publication['document_type']) : "";
+                $row['download_format'] = $publication['download_format'];
+                $row['peer_reviewed'] = $publication['peer_reviewed'];
+                $row['publication_date'] = $publication['publication_date'];
+                $row['publication_link'] = $publication['publication_link'];
+                $row['download_link'] = $publication['publication_link'];
                 $row['url'] = $publication['url'];
                 $row['search_term'] = $this->search_terms;
 
@@ -133,9 +156,9 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 $view->result[] = new ResultRow($row);
             }
 
-            $view->pager->updatePageInfo();
-            $view->pager->postExecute($view->result);
-            $view->total_rows = $view->pager->getTotalItems();
+            // $view->pager->updatePageInfo();
+            // $view->pager->postExecute($view->result);
+            $view->total_rows = $json['num_found'];
         } catch (\Throwable $th) {
             $this->error($th->getMessage());
         }
