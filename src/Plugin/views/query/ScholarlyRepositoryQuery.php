@@ -121,7 +121,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                     'query' => [
                         '_api_proxy_uri' => '/do/search/results/json' .
                             '?q=' . ($this->search_terms ?: "LSU") .
-                            "&context=" . 1 .
+                            "&context=" . $this->context .
                             "&start=" . $start + ($i * $chunk_size) .
                             "&sort=" . $this->sort_by
                     ],
@@ -167,7 +167,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
 
             $view->pager->updatePageInfo();
             $view->pager->postExecute($view->result);
-            $view->total_rows = $view->pager->getTotalItems();
+            $view->total_rows = $json['num_found'];
         } catch (\Throwable $th) {
             $this->error($th->getMessage());
         }
