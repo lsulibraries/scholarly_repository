@@ -84,13 +84,6 @@ function scholarly_repository_views_data()
             'id' => 'standard',
         ],
     ];
-    $data['scholarly_repository_publications']['context_key'] = [
-        'title' => t('Context Key'),
-        'help' => t('Context Key'),
-        'field' => [
-            'id' => 'standard',
-        ],
-    ];
     $data['scholarly_repository_publications']['download_format'] = [
         'title' => t('Download Format'),
         'help' => t('Download Format'),
