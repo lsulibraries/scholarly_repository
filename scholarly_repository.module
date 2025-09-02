@@ -26,7 +26,22 @@ function scholarly_repository_theme($existing, $type, $theme, $path)
 {
     return [
         'publication' => [
-            'variables' => [],
+            'variables' => [
+                'title' => NULL,
+                'institution_title' => NULL,
+                'publication_title' => NULL,
+                'author' => NULL,
+                'author_display' => NULL,
+                'document_type' => NULL,
+                'download_format' => NULL,
+                'peer_reviewed' => FALSE,
+                'publication_date' => NULL,
+                'publication_link' => NULL,
+                'download_link' => NULL,
+                'url' => NULL,
+                'search_term' => NULL,
+                'view' => NULL
+            ],
         ],
     ];
 }
