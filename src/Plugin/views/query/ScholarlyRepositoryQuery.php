@@ -152,7 +152,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 $row['author'] = isset($publication['author']) ? implode(",", $publication['author']) : "";
                 $row['author_display'] = isset($publication['author_display']) ? implode(",", $publication['author_display']) : "";
                 $row['document_type'] = isset($publication['document_type']) ? implode(",", $publication['document_type']) : "";
-                $row['download_format'] = $publication['download_format'];
+                $row['download_format'] = $publication['download_format'] ?: '';
                 $row['peer_reviewed'] = $publication['peer_reviewed'];
                 $row['publication_date'] = $publication['publication_date'];
                 $row['publication_link'] = $publication['publication_link'];
