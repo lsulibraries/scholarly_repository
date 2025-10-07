@@ -118,21 +118,21 @@ function scholarly_repository_views_data()
         'title' => t('Publication Link'),
         'help' => t('Publication Link'),
         'field' => [
-            'id' => 'url',
+            'id' => 'standard',
         ],
     ];
     $data['scholarly_repository_publications']['url'] = [
         'title' => t('URL'),
         'help' => t('URL'),
         'field' => [
-            'id' => 'url',
+            'id' => 'standard',
         ],
     ];
     $data['scholarly_repository_publications']['download_link'] = [
         'title' => t('Download Link'),
         'help' => t('Download Link'),
         'field' => [
-            'id' => 'url',
+            'id' => 'standard',
         ],
     ];
 
