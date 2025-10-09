@@ -133,8 +133,6 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                     'absolute' => TRUE,
                 ])->toString(TRUE)->getGeneratedUrl();
 
-                $this->logger->debug($url);
-
                 $response = $this->client->request(
                     'GET',
                     $url,
