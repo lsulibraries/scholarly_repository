@@ -103,6 +103,7 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
     public function build(ViewExecutable $view)
     {
         $view->initPager();
+        $view->build_info['query'] = $this;
     }
 
     /**

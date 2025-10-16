@@ -4,14 +4,14 @@ namespace Drupal\scholarly_repository\Plugin\views\filter;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\scholarly_repository\Plugin\views\ScholarlyRepositoryHandlerTrait;
-use Drupal\views\Plugin\views\filter\FilterPluginBase;
+use Drupal\views\Plugin\views\filter\BooleanOperator;
 
 /**
  * Filter by searching Scholarly Repository full-text index.
  * 
  * @ViewsFilter("scholarly_repository_search_terms")
  */
-class ScholarlyRepositorySearchTerms extends FilterPluginBase
+class ScholarlyRepositorySearchTerms extends BooleanOperator
 {
     use ScholarlyRepositoryHandlerTrait;
 
@@ -100,7 +100,7 @@ class ScholarlyRepositorySearchTerms extends FilterPluginBase
         if (!$this->value) return;
 
         // Pass any data you need to your query plugin.
-        $query->search_terms = reset($this->value);
+        $query->search_terms = $this->value;
         $query->search_match = $this->operator;
     }
 }
