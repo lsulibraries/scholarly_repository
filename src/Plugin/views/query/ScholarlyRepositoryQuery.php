@@ -169,9 +169,11 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 $view->result[] = new ResultRow($row);
             }
 
+            $view->pager->total_items = $json['num_found'];
+
             $view->pager->updatePageInfo();
             $view->pager->postExecute($view->result);
-            $view->total_rows = $json['num_found'];
+            $view->total_rows = $view->pager->getTotalItems();
         } catch (\Throwable $th) {
             $this->error($th->getMessage());
         }
