@@ -68,9 +68,6 @@ final class ScholarlyRepositoryApiProxy extends HttpApiPluginBase
      */
     public function forward(Request $request, string $uri): Response
     {
-        \Drupal::logger('scholar')->debug('DEBUG: @resp', [
-            '@resp' => print_r($request, true),
-        ]);
         $this->request = $request;
         $this->uri = $uri;
         return parent::forward($request, $uri);

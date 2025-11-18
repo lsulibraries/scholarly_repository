@@ -142,6 +142,8 @@ class ScholarlyRepositoryQuery extends QueryPluginBase
                 $json = json_decode($response->getBody()->getContents(), TRUE);
                 $view->pager->total_items = $json['num_found'];
 
+                if (empty($json['docs'])) break;
+
                 $data = array_merge($data, $json['docs']);
             }
 
