@@ -42,6 +42,21 @@ final class ScholarlyRepositoryApiProxy extends HttpApiPluginBase
     private string $uri;
 
     /**
+     * Maximum number of HTTP attempts, including the first request.
+     */
+    private const MAX_ATTEMPTS = 3;
+
+    /**
+     * HTTP statuses that may indicate a transient upstream failure.
+     */
+    private const RETRYABLE_STATUSES = [429, 502, 503, 504];
+
+    /**
+     * Number of attempts made so far.
+     */
+    private int $attempts = 0;
+
+    /**
      * {@inheritdoc}
      */
     public function addMoreConfigurationFormElements(array $form, SubformStateInterface $form_state): array
@@ -54,12 +69,34 @@ final class ScholarlyRepositoryApiProxy extends HttpApiPluginBase
      */
     public function postprocessOutgoing(Response $response): Response
     {
-        if ($response->getStatusCode() !== 200) {
+        $status = $response->getStatusCode();
+
+        if (
+            in_array($status, self::RETRYABLE_STATUSES, true) &&
+            $this->attempts < self::MAX_ATTEMPTS - 1
+        ) {
+            $this->attempts++;
+
+            usleep(250000 * (2 ** ($this->attempts - 1)));
+
             return $this->forward($this->request, $this->uri);
         }
-        // Modify the response from the API.
-        // A common problem is to remove the Transfer-Encoding header.
+
+        if ($status !== 200) {
+            \Drupal::logger('scholarly_repository')->error(
+                'Upstream request failed after @attempts attempt(s). HTTP status: @status. Response: @response',
+                [
+                    '@attempts' => $this->attempts + 1,
+                    '@status' => $status,
+                    '@response' => $response->getContent(),
+                ]
+            );
+
+            return $response;
+        }
+
         $response->headers->remove('transfer-encoding');
+
         return $response;
     }
 
@@ -68,6 +105,10 @@ final class ScholarlyRepositoryApiProxy extends HttpApiPluginBase
      */
     public function forward(Request $request, string $uri): Response
     {
+        $isRetry = $this->attempts > 0;
+        if (!$isRetry) {
+            $this->attempts = 0;
+        }
         $this->request = $request;
         $this->uri = $uri;
         return parent::forward($request, $uri);
